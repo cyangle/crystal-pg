@@ -39,7 +39,7 @@ class PG::ResultSet < ::DB::ResultSet
       @end = true
       frame = conn.expect_frame PQ::Frame::CommandComplete | PQ::Frame::EmptyQueryResponse
       if frame.is_a?(PQ::Frame::CommandComplete)
-        @rows_affected = frame.rows_affected
+        @rows_affected = frame.as(PQ::Frame::CommandComplete).rows_affected
       end
 
       conn.expect_frame PQ::Frame::ReadyForQuery
