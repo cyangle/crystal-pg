@@ -43,7 +43,7 @@ module PQ
 
       if process_ssl_message
         ctx = OpenSSL::SSL::Context::Client.new
-        ctx.verify_mode = OpenSSL::SSL::VerifyMode::NONE # currently emulating sslmode 'require' not verify_ca or verify_full
+        ctx.verify_mode = OpenSSL::SSL::VerifyMode::PEER # currently emulating sslmode 'require' not verify_ca or verify_full
         if sslcert = @conninfo.sslcert
           ctx.certificate_chain = sslcert
         end
@@ -52,8 +52,14 @@ module PQ
         end
         if sslrootcert = @conninfo.sslrootcert
           ctx.ca_certificates = sslrootcert
+          ctx.certificate_chain = sslrootcert
+          ctx.ca_certificates_path = "/home/vscode/certs"
         end
         @soc = OpenSSL::SSL::Socket::Client.new(@soc, context: ctx, sync_close: true)
+        puts "setting ssl options"
+        puts ctx
+        # puts ctx.ca_certificates
+        # puts ctx.ca_certificates_path
       end
 
       if @conninfo.sslmode == :require && !@soc.is_a?(OpenSSL::SSL::Socket::Client)
